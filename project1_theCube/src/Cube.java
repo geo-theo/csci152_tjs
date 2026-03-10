@@ -2,12 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cube {
-    // We store 6 faces, each a 3x3 grid (this satisfies "at least one array of 2+ dimensions")
-    // Face order for the CONSOLE printing and our internal logic:
-    // 0=R, 1=B, 2=O, 3=G, 4=Y, 5=W  (matches the sample output order you were given)
+    // Store 6 faces, each on a 3x3 grid
+    // Face order: 0=R, 1=B, 2=O, 3=G, 4=Y, 5=W
     private final char[][][] faces = new char[6][3][3];
-
-    // Store move history to output "commands that would solve the cube"
+    // Store move history to output commands that would solve the cube
     private final List<String> history = new ArrayList<>();
 
     public Cube() {
@@ -32,10 +30,8 @@ public class Cube {
         }
     }
 
-    // ----------------------- Printing (required format) -----------------------
-
     public String toRequiredStringFormat() {
-        // Prints faces individually in the exact block style shown in assignment.
+        // Print faces individually in the exact block style given by assignment
         StringBuilder sb = new StringBuilder();
         for (int f = 0; f < 6; f++) {
             for (int r = 0; r < 3; r++) {
@@ -48,7 +44,7 @@ public class Cube {
         return sb.toString();
     }
 
-    // Commands to solve cube = inverse of history (not extra credit)
+    // Commands to solve cube
     public String getSolveCommands() {
         if (history.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
@@ -60,15 +56,12 @@ public class Cube {
     }
 
     private String inverse(String move) {
-        // move is like "u" or "u'"
+        // move "u" or "u'"
         if (move.endsWith("'")) return move.substring(0, 1);
         return move + "'";
     }
 
-    // ----------------------- Moves API -----------------------
-
     public void applyMove(String move) {
-        // normalize
         move = move.trim().toLowerCase();
 
         switch (move) {
@@ -95,7 +88,7 @@ public class Cube {
         }
     }
 
-    // Inverses = 3 clockwise turns
+    // 3 clockwise turns
     private void Ui() { U(); U(); U(); }
     private void Di() { D(); D(); D(); }
     private void Ri() { R(); R(); R(); }
@@ -103,26 +96,7 @@ public class Cube {
     private void Fi() { F(); F(); F(); }
     private void Bi() { B(); B(); B(); }
 
-    // ----------------------- Face rotations + edge cycling -----------------------
-    // We'll use a standard cube mapping with faces:
-    // R,B,O,G,Y,W correspond to Right, Back, Left, Front, Up, Down? Not exactly.
-    //
-    // The assignment only cares that moves are consistent and reversible.
-    // For the 3D renderer, we'll map our faces into its required order later.
-
-    // To keep things clear:
-    // We'll interpret our 6 faces as:
-    //   4 (Y) = Up
-    //   5 (W) = Down
-    //   3 (G) = Front
-    //   1 (B) = Back
-    //   0 (R) = Right
-    //   2 (O) = Left
-    //
-    // This is a conventional color scheme (common): U=Yellow, D=White, F=Green, B=Blue, R=Red, L=Orange.
-    // (If your class uses a different scheme, it doesn't matter for grading unless they check exact colors.)
-
-    // Rotate a face clockwise in-place
+    // Rotate face clockwise in-place
     private void rotateFaceCW(int f) {
         char[][] old = copy2D(faces[f]);
         faces[f][0][0] = old[2][0];
@@ -168,7 +142,7 @@ public class Cube {
         return new char[]{a[2], a[1], a[0]};
     }
 
-    // Face indices in our system:
+    // Face indices
     private static final int Rf = 0; // Red
     private static final int Bk = 1; // Blue (Back)
     private static final int Lf = 2; // Orange (Left)
@@ -176,7 +150,7 @@ public class Cube {
     private static final int Up = 4; // Yellow
     private static final int Dn = 5; // White
 
-    // U (Up / Yellow)
+    // U (Up/Yellow)
     private void U() {
         rotateFaceCW(Up);
         char[] f = row(Fr, 0);
@@ -190,7 +164,7 @@ public class Cube {
         setRow(Fr, 0, l);
     }
 
-    // D (Down / White)
+    // D (Down/White)
     private void D() {
         rotateFaceCW(Dn);
         char[] f = row(Fr, 2);
@@ -204,7 +178,7 @@ public class Cube {
         setRow(Fr, 2, r);
     }
 
-    // R (Right / Red)
+    // R (Right/Red)
     private void R() {
         rotateFaceCW(Rf);
         char[] u = col(Up, 2);
@@ -218,7 +192,7 @@ public class Cube {
         setCol(Up, 2, rev(b));
     }
 
-    // L (Left / Orange)
+    // L (Left/Orange)
     private void L() {
         rotateFaceCW(Lf);
         char[] u = col(Up, 0);
@@ -232,7 +206,7 @@ public class Cube {
         setCol(Up, 0, rev(b));
     }
 
-    // F (Front / Green)
+    // F (Front/Green)
     private void F() {
         rotateFaceCW(Fr);
         char[] u = row(Up, 2);
@@ -246,7 +220,7 @@ public class Cube {
         setRow(Up, 2, rev(l));
     }
 
-    // B (Back / Blue)
+    // B (Back/Blue)
     private void B() {
         rotateFaceCW(Bk);
         char[] u = row(Up, 0);
@@ -260,20 +234,16 @@ public class Cube {
         setRow(Up, 0, rev(l));
     }
 
-    // ----------------------- Adapter for the 3D renderer (Step 1 lab) -----------------------
-    // RubiksCube renderer expects: String[6][9] with order:
-    // 0=Front, 1=Back, 2=Right, 3=Left, 4=Top, 5=Bottom
+    // RubiksCube  expects String[6][9] with order:0=Front, 1=Back, 2=Right, 3=Left, 4=Top, 5=Bottom
     public String[][] toRendererFaceData() {
         String[][] out = new String[6][9];
-
-        // Map our faces (Fr,Bk,Rf,Lf,Up,Dn) into renderer order
+        // Map our faces  into renderer order
         writeFace(out, 0, Fr);
         writeFace(out, 1, Bk);
         writeFace(out, 2, Rf);
         writeFace(out, 3, Lf);
         writeFace(out, 4, Up);
         writeFace(out, 5, Dn);
-
         return out;
     }
 
