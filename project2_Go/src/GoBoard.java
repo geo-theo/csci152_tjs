@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 
 public class GoBoard {
-
+    /* 9x9 crosshach grid */
     static final int SIZE = 9;
     static final int GAP = 35;
     static final int MARGIN = 25;
@@ -28,6 +28,7 @@ public class GoBoard {
 
     static JLabel statusLabel = new JLabel("", SwingConstants.CENTER);
     static JLabel scoreLabel = new JLabel("", SwingConstants.CENTER);
+    static Image boardBackground = new ImageIcon("LeeSeDol_AlphaGo.png").getImage();
 
     static ArrayList<Point> currentGroup = new ArrayList<Point>();
     static ArrayList<Point> currentRegion = new ArrayList<Point>();
@@ -63,13 +64,12 @@ public class GoBoard {
         JPanel boardPanel = new JPanel() {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                g.drawImage(boardBackground, 0, 0, getWidth(), getHeight(), this);
                 drawBoard(g);
             }
         };
 
         boardPanel.setPreferredSize(new Dimension(MARGIN * 2 + GAP * (SIZE - 1), MARGIN * 2 + GAP * (SIZE - 1)));
-        boardPanel.setBackground(new Color(214, 176, 92));
-
         boardPanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 handleMove(e.getX(), e.getY(), boardPanel);
@@ -175,6 +175,7 @@ public class GoBoard {
             return;
         }
 
+        /* alternate pla cing of black and white pieces */
         String stone = blackTurn ? BLACK : WHITE;
         String enemy = blackTurn ? WHITE : BLACK;
         String playerName = blackTurn ? "Black" : "White";
@@ -184,6 +185,7 @@ public class GoBoard {
 
         goBoard[x][y] = stone;
 
+        /* Capture */
         int captured = removeCapturedGroups(enemy);
 
         if (!groupHasLife(x, y)) {
@@ -214,6 +216,7 @@ public class GoBoard {
         boardPanel.repaint();
     }
 
+    /* out-of-bounds detection */
     static boolean isInsideBoard(int x, int y) {
         return x >= 0 && x < SIZE && y >= 0 && y < SIZE;
     }
@@ -292,6 +295,7 @@ public class GoBoard {
         return currentGroupAlive;
     }
 
+    /* capture recursoin (life check) */
     static void searchGroup(int x, int y, String color) {
         if (!isInsideBoard(x, y)) {
             return;
@@ -345,6 +349,7 @@ public class GoBoard {
         }
     }
 
+    /* Scoring */
     static void calculateTerritory() {
         blackTerritoryCount = 0;
         whiteTerritoryCount = 0;
